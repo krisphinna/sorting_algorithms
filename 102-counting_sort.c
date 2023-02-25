@@ -1,52 +1,60 @@
 #include "sort.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 /**
-  * counting_sort - A ()that sorts an array using counting algorithm.
-  * @array: The array to sort.
-  * @size: The length of the array.
-  * Return: Nothing.
-  */
+ * int_array_init - initializes an int array of size size filled with 0
+ * @size: the wanted size of the array
+ * Return: the new filled array, or NULL on failure
+ */
+
+int *int_array_init(size_t size)
+{
+	int *new = NULL;
+	size_t i;
+
+	new = malloc(sizeof(int) * size);
+	if (new)
+	{
+		for (i = 0; i < size; i++)
+			new[i] = 0;
+	}
+	return (new);
+}
+
+/**
+ * counting_sort - sorts an array of integers using counting sort
+ * @array: the array of integers
+ * @size: the size of the array
+ */
+
 void counting_sort(int *array, size_t size)
 {
-	unsigned int i = 1;
-	int *counter = NULL, k = 0, j = 0;
+	int *count = NULL, *output = NULL, k = -1;
+	size_t i;
 
-	if (array == NULL || size < 2)
+	if (size < 2)
 		return;
-
-	k = array[0];
-	for (; i < size; i++)
-	{
-		if (array[i] > k)
-			k = array[i];
-	}
-
-	counter = malloc(sizeof(int) * (k + 1));
-	if (counter == NULL)
-		return;
-
-	for (j = 0; j <= k; j++)
-		counter[j] = 0;
 	for (i = 0; i < size; i++)
-		counter[array[i]] += 1;
-	for (j = 0; j < k; j++)
+		k = array[i] > k ? array[i] : k;
+	count = int_array_init(k + 1);
+	if (count)
 	{
-		counter[j + 1] += counter[j];
-		printf("%d, ", counter[j]);
-	}
-	counter[j + 1] += counter[j];
-	printf("%d\n", counter[j + 1]);
-	for (i = 0; i < size; i++)
-	{
-		j = counter[array[i]] - 1;
-		if (array[i] != array[j])
+		for (i = 0; i < size; i++)
+			count[array[i]] += 1;
+		for (i = 1; i <= (size_t)k; i++)
+			count[i] += count[i - 1];
+		print_array(count, k + 1);
+		output = malloc(sizeof(int) * size);
+		if (output)
 		{
-			k = array[i];
-			array[i] = array[j];
-			array[j] = k;
+			for (i = 0; i < size; i++)
+			{
+				output[count[array[i]] - 1] = array[i];
+				count[array[i]] -= 1;
+			}
+			for (i = 0; i < size; i++)
+				array[i] = output[i];
+			free(output);
 		}
+		free(count);
 	}
-	free(counter);
 }
